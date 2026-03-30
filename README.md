@@ -1,7 +1,5 @@
 # MiniStack — Free, Open-Source Local AWS Emulator
 
-
-
 > **LocalStack is no longer free.** MiniStack is a fully open-source, zero-cost drop-in replacement.
 > Single port · No account · No license key · No telemetry · Just AWS APIs, locally.
 
@@ -12,7 +10,6 @@
 ![License](https://img.shields.io/github/license/Nahuel990/ministack)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![GitHub stars](https://img.shields.io/github/stars/Nahuel990/ministack)
-
 
 <p align="center">
   <img src="ministack1.png" alt="MiniStack in action" width="700"/>
@@ -384,6 +381,22 @@ ecs.stop_task(cluster="dev", task=task_arn)
 | `ELASTICACHE_BASE_PORT` | `16379` | Starting host port for ElastiCache containers |
 | `PERSIST_STATE` | `0` | Set `1` to persist service state across restarts |
 | `STATE_DIR` | `/tmp/ministack-state` | Directory for persisted state files |
+| `ATHENA_ENGINE` | `auto` | SQL engine for Athena: `auto`, `duckdb`, `mock` |
+
+### Athena SQL Engines
+
+Set `ATHENA_ENGINE` to control Athena's SQL execution engine. In `auto` mode, DuckDB is used if installed, otherwise queries return mock results.
+
+| Capability | `duckdb` | `mock` |
+|---|---|---|
+| Simple SELECT / expressions | Yes | Partial (regex) |
+| Arithmetic, aggregations, JOINs, CTEs | Yes | No |
+| Window functions, subqueries | Yes | No |
+| Parquet / CSV / JSON file queries | Yes | No |
+| UNNEST, ARRAY, MAP functions | Yes | No |
+| APPROX\_DISTINCT, REGEXP\_EXTRACT | Yes | No |
+
+Install DuckDB for full Athena SQL compatibility: `pip install ministack[full]`.
 
 ### State Persistence
 
@@ -459,6 +472,7 @@ pytest tests/ -v
 ```
 
 Expected output:
+
 ```
 collected 694 items
 

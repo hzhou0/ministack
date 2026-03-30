@@ -117,6 +117,19 @@ def glue():
 def athena():
     return make_client("athena")
 
+
+def _ministack_config(settings):
+    """Set runtime config on the running server via POST /_ministack/config."""
+    import json
+    req = urllib.request.Request(
+        f"{ENDPOINT}/_ministack/config",
+        data=json.dumps(settings).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    urllib.request.urlopen(req, timeout=5)
+
+
 @pytest.fixture(scope="session")
 def fh():
     return make_client("firehose")
