@@ -35,14 +35,14 @@ from urllib.parse import parse_qs
 from xml.sax.saxutils import escape as _esc
 
 from ministack.core.persistence import load_state, PERSIST_STATE
-from ministack.core.responses import get_account_id, md5_hash, new_uuid, now_iso
+from ministack.core.responses import AccountScopedDict, get_account_id, md5_hash, new_uuid, now_iso
 
 logger = logging.getLogger("sqs")
 
 # ── Module-level state ──────────────────────────────────────
 
-_queues: dict = {}
-_queue_name_to_url: dict = {}
+_queues = AccountScopedDict()
+_queue_name_to_url = AccountScopedDict()
 _queues_lock = threading.Lock()
 
 
@@ -202,6 +202,11 @@ def _act_create_queue(data: dict, _u: str) -> dict:
 
     for k, v in attrs.items():
         q["attributes"][k] = str(v)
+
+    # Apply tags passed at creation time
+    create_tags = data.get("Tags") or data.get("tags") or {}
+    if create_tags:
+        q["tags"].update(create_tags)
 
     _queues[url] = q
     _queue_name_to_url[name] = url
