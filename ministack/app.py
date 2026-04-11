@@ -44,6 +44,7 @@ from ministack.services import (
     acm,
     alb,
     apigateway,
+    autoscaling,
     apigateway_v1,
     appsync,
     athena,
@@ -131,6 +132,7 @@ SERVICE_HANDLERS = {
     "servicediscovery": servicediscovery.handle_request,
     "s3files": s3files.handle_request,
     "rds-data": rds_data.handle_request,
+    "autoscaling": autoscaling.handle_request,
 }
 
 SERVICE_NAME_ALIASES = {
@@ -490,7 +492,7 @@ async def app(scope, receive, send):
         _non_s3_hosts = {"s3", "s3-control", "sqs", "sns", "dynamodb", "lambda", "iam", "sts",
                          "secretsmanager", "logs", "ssm", "events", "kinesis",
                          "monitoring", "ses", "states", "ecs", "rds", "rds-data", "elasticache",
-                         "glue", "athena", "apigateway", "cloudformation"}
+                         "glue", "athena", "apigateway", "cloudformation", "autoscaling"}
         if bucket not in _non_s3_hosts:
             vhost_path = "/" + bucket + path if path != "/" else "/" + bucket + "/"
             try:
@@ -560,6 +562,9 @@ async def _send_response(send, status, headers, body):
         except UnicodeEncodeError:
             return v.encode("utf-8")
 
+    body_bytes = body if isinstance(body, bytes) else body.encode("utf-8")
+    if "content-length" not in {k.lower() for k in headers}:
+        headers["Content-Length"] = str(len(body_bytes))
     header_list = [(k.encode("latin-1"), _encode_header_value(str(v))) for k, v in headers.items()]
     await send({
         "type": "http.response.start",
@@ -568,7 +573,7 @@ async def _send_response(send, status, headers, body):
     })
     await send({
         "type": "http.response.body",
-        "body": body if isinstance(body, bytes) else body.encode("utf-8"),
+        "body": body_bytes,
     })
 
 
