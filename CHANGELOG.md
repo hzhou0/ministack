@@ -9,6 +9,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Transfer Family** — new service: CreateServer, DescribeServer, DeleteServer, ListServers, CreateUser, DescribeUser, DeleteUser, ListUsers, ImportSshPublicKey, DeleteSshPublicKey. 10 operations covering SFTP server/user management with SSH key rotation and LOGICAL home directory mappings to S3. 19 integration tests.
 ### Fixed
 - **Cognito `cognito:groups` missing from tokens** — `initiate_auth` and `admin_initiate_auth` now include the `cognito:groups` claim in both access and ID tokens when the user belongs to one or more groups. Real AWS Cognito includes this claim automatically; MiniStack was not threading the already-populated `_groups` list through to the JWT builder.
 
